@@ -33,7 +33,8 @@ const StudyPlanGenerator = () => {
       .replace(/^\*\*\s*([^\n]+)\s*\(([\d]+ minutes)\)\n+/gm, '<h3 style="color: #f59e0b;">$1 ($2)</h3>')
       .replace(/^\* (Subtopic [\d.]+):/gm, '<h4 style="color: #60a5fa;">$1</h4>')
       .replace(/^\s*\+ ([^\n]+):/gm, '<h5>$1</h5>');
-  
+    formattedText = formattedText.replace(/(\d+)\s*minutes/g, '<span style="color: #ff00ff; font-weight: bold;">$1 Minutes</span>');
+    formattedText = formattedText.replace(/(\d+)\s*hours/g, '<span style="color: #ff00ff; font-weight: bold;">$1 Hours</span>');
     // Add <ul> and </ul> tags
     formattedText = `<ul>${formattedText}</ul>`;
   
