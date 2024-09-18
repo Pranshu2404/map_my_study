@@ -184,6 +184,7 @@ const QuizGenerator = () => {
             className="mt-1 block w-full text-sm text-gray-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
           />
         </div>
+        <p className='relative max-md:top-2  m-1 text-white'>{file? 'File Uploaded':''}</p>
         <div className="mb-6">
           <label htmlFor="numQuestions" className="block text-sm font-medium text-gray-200 mb-2">Number of Questions:</label>
           <input
@@ -199,6 +200,13 @@ const QuizGenerator = () => {
           {isLoading ? 'Generating...' : 'Generate Quiz'}
         </Button>
       </form>
+      {isLoading && (
+                <div className="loader">
+                <div className="spinner-border" role="status">
+                <span className="sr-only">Loading...</span>
+                </div>
+                </div>
+                 )}
 
       {error && <p className="text-red-400 mb-6 text-center bg-red-900 bg-opacity-50 p-4 rounded-lg">{error}</p>}
 
@@ -239,7 +247,7 @@ const QuizGenerator = () => {
       )}
 
       {quiz && !quizSubmitted && (
-        <div className="bg-gray-800 bg-opacity-50 p-6 rounded-xl shadow-md mt-6">
+        <div className="bg-gray-800 bg-opacity-50 p-6 rounded-xl shadow-md mt-6 mb-10">
            <div className="flex justify-between">
             <Button
               onClick={handlePreviousQuestion}

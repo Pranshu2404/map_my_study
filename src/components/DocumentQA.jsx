@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Button, Form } from "react-bootstrap";
 import { MdFileUpload, MdDescription, MdError } from "react-icons/md";
 import ReactHtmlParser from 'react-html-parser';
+import '../index.css'
 
 const DocumentQA = () => {
   const [file, setFile] = useState(null);
@@ -79,15 +80,18 @@ const DocumentQA = () => {
                   Upload PDF:
                 </Form.Label>
                 <div className="flex items-center space-x-4">
-                  <Form.Control
+                  <div><Form.Control
                     type="file"
                     id="fileUpload"
                     onChange={handleFileChange}
                     className="block w-full text-sm text-gray-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 focus:outline-none"
                     accept=".pdf"
-                  />
+                  /></div>
                   <MdFileUpload className="w-6 h-6 text-purple-300" />
+                  
                 </div>
+                
+                <p className='relative max-md:top-2  m-1 text-white'>{file? 'File Uploaded':''}</p>
               </div>
               <div>
                 <Form.Label htmlFor="prompt" className="block text-lg font-medium text-white mb-2">
@@ -115,6 +119,13 @@ const DocumentQA = () => {
               </Button>
             </form>
           </div>
+          {loading && (
+                <div className="loader">
+                <div className="spinner-border" role="status">
+                <span className="sr-only">Loading...</span>
+                </div>
+                </div>
+                 )}
           
             {error && (
               <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md flex items-center">

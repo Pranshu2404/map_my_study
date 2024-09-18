@@ -90,6 +90,7 @@ const StudyPlanGenerator = () => {
               />
               <MdFileUpload className="w-6 h-6 text-purple-300" />
             </div>
+            <p className='relative max-md:top-2  m-1 text-white'>{file? 'File Uploaded':''}</p>
           </div>
           <Button
             type="submit"
@@ -104,6 +105,13 @@ const StudyPlanGenerator = () => {
           </Button>
         </form>
       </div>
+      {loading && (
+                <div className="loader">
+                <div className="spinner-border" role="status">
+                <span className="sr-only">Loading...</span>
+                </div>
+                </div>
+                 )}
 
       {error && (
         <div className="mt-4 sm:mt-6 lg:mt-8 p-4 bg-red-500 bg-opacity-20 border border-red-500 rounded-xl text-red-400 text-center font-semibold">

@@ -179,8 +179,8 @@ const MainContent = () => {
           <MindMapApp />
         )}
 
-<div className="relative top-[95%] w-[60%] max-md:w-[90%] mx-auto">
-  <p className="text-sm text-center font-medium text-slate-400 bottom-0 mb-4 md:mb-5 lg:mb-6">
+<div className="absolute bottom-2 max-md:bottom-1 w-[60%] max-md:w-[90%]">
+  <p className="text-sm max-md:text-[9px] text-center font-medium text-slate-400 bottom-0">
     iMapMyStudy is subject to Education Risks. Use at your own Discretion.
   </p>
 </div>
