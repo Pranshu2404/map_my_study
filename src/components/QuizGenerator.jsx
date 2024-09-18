@@ -116,7 +116,7 @@ const QuizGenerator = () => {
       }
     } catch (err) {
       console.error('Error generating quiz:', err);
-      setError('Something went wrong. Please try again.');
+      setError('Your File is Too Large or can not read the Text.');
     } finally {
       setIsLoading(false);
     }

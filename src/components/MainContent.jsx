@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { GiNotebook } from "react-icons/gi";
 import { FaFileCircleQuestion } from "react-icons/fa6";
 import { LiaSitemapSolid } from "react-icons/lia";
+import { useNavigate } from "react-router-dom";
 import {
   FaCode,
   FaCompass,
@@ -39,6 +40,7 @@ const MainContent = () => {
   const [showStudyPlanGenerator, setShowStudyPlanGenerator] = useState(false);
   const [showYouTubeSummarizer, setShowYouTubeSummarizer] = useState(false);
   const [showMindMapApp, setShowMindMapApp] = useState(false);
+  const navigate = useNavigate();
 
   const handleShowDocumentQA = () => {
     setShowDocumentQA(true);
@@ -69,9 +71,9 @@ const MainContent = () => {
 
   return (
     <div className="flex-1 min-h-screen relative bg-gradient-to-br from-gray-900 to-black px-5">
-      <div className="flex justify-between text-xl p-5 text-slate-300">
+      <div className="flex justify-between text-xl p-5 text-slate-300 pr-0">
       <div className="max-md:w-[80%] w-[50%] flex justify-between max-md:justify-normal max-md:flex-col">
-  <p className="text-white font-bold ml-10">iMapMyStudy</p>
+  <p className="text-white font-bold ml-10 -mt-1">iMapMyStudy</p>
   {(showDocumentQA || showQuizGenerator || showStudyPlanGenerator || showYouTubeSummarizer || showMindMapApp) && (
     <button
       onClick={handleCloseAll}
@@ -81,7 +83,7 @@ const MainContent = () => {
     </button>
   )}
 </div>
-        <FaUserCircle className="text-indigo-400 mt-2"/>
+        <FaUserCircle className="text-indigo-400 hover:cursor-pointer text-2xl" onClick={() => navigate('/login')}/>
       </div>
       
       <div className="max-w-[900px] mx-auto">

@@ -18,7 +18,7 @@ const Sidebar = () => {
     <div>
       <IoMenu
           onClick={() => setExtended(!extended)}
-          className="text-2xl left-6 top-6 absolute z-50 block cursor-pointer text-indigo-400 hover:text-indigo-300 transition-colors duration-200"
+          className="text-3xl left-4 top-4 absolute z-50 block cursor-pointer text-indigo-400 hover:text-indigo-300 transition-colors duration-200"
         />
     <div
       className={`min-h-screen inline-flex flex-col justify-between py-[25px] px-[20px] z-50 transition-all duration-300 w-[20%] max-md:w-[50%] ${

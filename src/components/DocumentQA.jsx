@@ -62,7 +62,7 @@ const DocumentQA = () => {
       console.log(result.data)
       setResponse(result.data);
     } catch (err) {
-      setError('Error submitting the form');
+      setError('Your File is Too Large');
     } finally {
       setLoading(false);
     }

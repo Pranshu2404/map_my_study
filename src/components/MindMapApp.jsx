@@ -245,7 +245,7 @@ const MindMapApp = () => {
 
       {error && (
         <div className="mb-8 p-6 text-red-100 bg-red-600 rounded-xl border border-red-400 shadow-lg animate-pulse">
-          <strong className="font-semibold">Error:</strong> {error}
+          <strong className="font-semibold">Error:</strong> Cant Read the Text
         </div>
       )}
 
