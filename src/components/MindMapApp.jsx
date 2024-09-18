@@ -17,6 +17,7 @@ const MindMapApp = () => {
   const scrollLeft = useRef(0);
   const scrollTop = useRef(0);
   const isDragging = useRef(false);
+  const [loading, setLoading] = useState(false);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -33,6 +34,7 @@ const MindMapApp = () => {
 
     const formData = new FormData();
     formData.append('file', file);
+    setLoading(true);
 
     try {
       const response = await axios.post('https://web-4fju.onrender.com/process_pdf', formData, {
@@ -53,6 +55,8 @@ const MindMapApp = () => {
       }
     } catch (error) {
       setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
