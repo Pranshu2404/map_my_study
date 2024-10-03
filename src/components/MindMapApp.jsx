@@ -2,13 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import mermaid from 'mermaid';
 import html2canvas from 'html2canvas';
+import { db, auth } from "../firebaseConfig";
+import { decode } from 'html-entities';
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
-const MindMapApp = () => {
+const MindMapApp = ({ mindMapData }) => {
   const [file, setFile] = useState(null);
-  const [mermaidCode, setMermaidCode] = useState('');
+  const [mermaidCode, setMermaidCode] = useState(mindMapData || '');
   const [error, setError] = useState(null);
-  const [isUploaded, setIsUploaded] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(1);
+  const [isUploaded, setIsUploaded] = useState(!!mindMapData);
   const [showModal, setShowModal] = useState(false);
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -18,6 +20,24 @@ const MindMapApp = () => {
   const scrollTop = useRef(0);
   const isDragging = useRef(false);
   const [loading, setLoading] = useState(false);
+
+  const saveActivityToFirestore = async (activityType, details) => {
+    // const user = auth.currentUser;
+    // if (user) {
+    //   try {
+    //     const activityRef = collection(db, "users", user.uid, "userActivities");
+    //     await addDoc(activityRef, {
+    //       userId: user.uid,
+    //       activityType,
+    //       details,
+    //       timestamp: serverTimestamp(),
+    //     });
+    //     console.log("Activity saved successfully");
+    //   } catch (error) {
+    //     console.error("Error saving activity: ", error);
+    //   }
+    // }
+  };
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -37,13 +57,21 @@ const MindMapApp = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('https://web-4fju.onrender.com/process_pdf', formData, {
+      const response = await axios.post('http://13.200.195.216:8000/process_pdf', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setMermaidCode(response.data.mermaid_code);
+
+      await saveActivityToFirestore("MindMap", {
+        fileName: file.name,
+        studyPlan: response.data.mermaid_code,
       });
 
       if (response.data && response.data.mermaid_code) {
         const rawMermaidCode = response.data.mermaid_code;
+        console.log(rawMermaidCode)
         const formattedMermaidCode = cleanMermaidCode(rawMermaidCode).replace(/^mermaid/, '');
+        console.log(formattedMermaidCode)
         if (formattedMermaidCode) {
           setMermaidCode(formattedMermaidCode);
           setIsUploaded(true);
@@ -61,18 +89,22 @@ const MindMapApp = () => {
   };
 
   useEffect(() => {
-    if (mermaidCode && isUploaded) {
+    if (mermaidCode && (isUploaded || mindMapData)) {
       try {
         mermaid.initialize({ startOnLoad: true });
         if (containerRef.current) {
-          containerRef.current.innerHTML = mermaidCode;
+          // containerRef.current.innerHTML = mermaidCode;
+          // console.log(mermaidCode);
+          const decodedMermaidCode = decode(mermaidCode);
+        containerRef.current.innerHTML = decodedMermaidCode;
+        console.log(decodedMermaidCode);
           mermaid.contentLoaded(undefined, containerRef.current);
         }
       } catch (error) {
         console.error('Error rendering Mermaid diagram:', error);
       }
     }
-  }, [mermaidCode, isUploaded]);
+  }, [mermaidCode, isUploaded, mindMapData]);
 
   const cleanMermaidCode = (mermaidCode) => {
     let cleanedCode = mermaidCode.replace(/^mermaid/, '');
@@ -81,7 +113,11 @@ const MindMapApp = () => {
       .replace(/\*/g, '')
       .replace(/#/g, '')
       .replace(/\+/g, '')
-      .replace(/\`\`\`/g, '');
+      // .replace(/&#39;/g, "'")
+      // .replace(/&quot;/g, '"')
+      .replace(/\`\`\`/g, '')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>');
     return cleanedCode.trim();
   };
 
@@ -97,35 +133,13 @@ const MindMapApp = () => {
     }
   };
 
-  const handleZoomIn = () => {
-    setZoomLevel(prevZoom => {
-      const newZoom = Math.min(prevZoom * 1.2, 3); // Limit zoom level to a maximum of 3
-      if (mapRef.current) {
-        mapRef.current.style.transform = `scale(${newZoom})`;
-        mapRef.current.style.transformOrigin = '0 0'; // Keep the origin at the top-left corner
-      }
-      return newZoom;
-    });
-  };
-
-  const handleZoomOut = () => {
-    setZoomLevel(prevZoom => {
-      const newZoom = Math.max(prevZoom * 0.8, 0.5); // Limit zoom level to a minimum of 0.5
-      if (mapRef.current) {
-        mapRef.current.style.transform = `scale(${newZoom})`;
-        mapRef.current.style.transformOrigin = '0 0';
-      }
-      return newZoom;
-    });
-  };
-
   const handleMouseDown = (e) => {
     isDragging.current = true;
     startX.current = e.clientX - mapRef.current.offsetLeft;
     startY.current = e.clientY - mapRef.current.offsetTop;
     scrollLeft.current = mapRef.current.scrollLeft;
     scrollTop.current = mapRef.current.scrollTop;
-    mapRef.current.style.cursor = 'grabbing'; // Change cursor to grabbing
+    mapRef.current.style.cursor = 'grabbing';
   };
 
   const handleMouseMove = (e) => {
@@ -133,8 +147,8 @@ const MindMapApp = () => {
       e.preventDefault();
       const x = e.clientX - mapRef.current.offsetLeft;
       const y = e.clientY - mapRef.current.offsetTop;
-      const walkX = (x - startX.current) / zoomLevel;
-      const walkY = (y - startY.current) / zoomLevel;
+      const walkX = x - startX.current;
+      const walkY = y - startY.current;
       mapRef.current.scrollLeft = scrollLeft.current - walkX;
       mapRef.current.scrollTop = scrollTop.current - walkY;
     }
@@ -142,16 +156,7 @@ const MindMapApp = () => {
 
   const handleMouseUp = () => {
     isDragging.current = false;
-    mapRef.current.style.cursor = 'grab'; // Change cursor to grab when not dragging
-  };
-
-  const handleWheel = (e) => {
-    e.preventDefault();
-    if (e.deltaY < 0) {
-      handleZoomIn();
-    } else {
-      handleZoomOut();
-    }
+    mapRef.current.style.cursor = 'grab';
   };
 
   useEffect(() => {
@@ -161,40 +166,38 @@ const MindMapApp = () => {
       mapElement.addEventListener('mousemove', handleMouseMove);
       mapElement.addEventListener('mouseup', handleMouseUp);
       mapElement.addEventListener('mouseleave', handleMouseUp);
-      mapElement.addEventListener('wheel', handleWheel);
 
       return () => {
         mapElement.removeEventListener('mousedown', handleMouseDown);
         mapElement.removeEventListener('mousemove', handleMouseMove);
         mapElement.removeEventListener('mouseup', handleMouseUp);
         mapElement.removeEventListener('mouseleave', handleMouseUp);
-        mapElement.removeEventListener('wheel', handleWheel);
       };
     }
   }, []);
 
-  useEffect(() => {
-    if (showModal && containerRef.current) {
-      try {
-        mermaid.initialize({ startOnLoad: true });
-        containerRef.current.innerHTML = mermaidCode;
-        mermaid.contentLoaded(undefined, containerRef.current);
-      } catch (error) {
-        console.error('Error rendering Mermaid diagram in modal:', error);
-      }
-    }
-  }, [showModal, mermaidCode]);
+  // useEffect(() => {
+  //   if (showModal && containerRef.current) {
+  //     try {
+  //       mermaid.initialize({ startOnLoad: true });
+  //       containerRef.current.innerHTML = mermaidCode;
+  //       mermaid.contentLoaded(undefined, containerRef.current);
+  //     } catch (error) {
+  //       console.error('Error rendering Mermaid diagram in modal:', error);
+  //     }
+  //   }
+  // }, [showModal, mermaidCode]);
 
   const openFullscreen = () => {
     if (mapRef.current) {
       const fullscreenElement = mapRef.current;
       if (fullscreenElement.requestFullscreen) {
         fullscreenElement.requestFullscreen();
-      } else if (fullscreenElement.mozRequestFullScreen) { // Firefox
+      } else if (fullscreenElement.mozRequestFullScreen) {
         fullscreenElement.mozRequestFullScreen();
-      } else if (fullscreenElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
+      } else if (fullscreenElement.webkitRequestFullscreen) {
         fullscreenElement.webkitRequestFullscreen();
-      } else if (fullscreenElement.msRequestFullscreen) { // IE/Edge
+      } else if (fullscreenElement.msRequestFullscreen) {
         fullscreenElement.msRequestFullscreen();
       }
     }
@@ -203,45 +206,45 @@ const MindMapApp = () => {
   const closeFullscreen = () => {
     if (document.exitFullscreen) {
       document.exitFullscreen();
-    } else if (document.mozCancelFullScreen) { // Firefox
+    } else if (document.mozCancelFullScreen) {
       document.mozCancelFullScreen();
-    } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+    } else if (document.webkitExitFullscreen) {
       document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) { // IE/Edge
+    } else if (document.msExitFullscreen) {
       document.msExitFullscreen();
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto p-8 relative">
-      {/* Upload Section */}
-      <div className="bg-gradient-to-r from-purple-500 to-indigo-500 p-8 rounded-xl shadow-2xl transition-all duration-300 hover:shadow-purple-500/30">
-        <h1 className="text-5xl max-md:text-3xl font-extrabold text-center text-white mb-8 tracking-tight">
-          MindMap Generator
-        </h1>
-        <div className="relative">
-          <input
-            type="file"
-            onChange={handleFileChange}
-            accept="application/pdf"
-            className="block w-full mb-4 text-sm text-gray-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
-          />
-          <button
-            onClick={handleUpload}
-            className="w-full py-3 px-6 font-semibold rounded-full shadow-md bg-indigo-500 text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-opacity-50 transition-all duration-300 transform hover:translate-y-[-2px]"
-          >
-            Upload PDF
-          </button>
-          <p className='relative max-md:top-2  m-1 text-white'>{file? 'File Uploaded':''}</p>
+      {!mindMapData && (
+        <div className="bg-gradient-to-r from-purple-500 to-indigo-500 p-8 rounded-xl shadow-2xl transition-all duration-300 hover:shadow-purple-500/30">
+          <h1 className="text-4xl max-md:text-3xl font-extrabold text-center text-white mb-8 tracking-tight">
+            iMindMap Generator
+          </h1>
+          <div className="relative">
+            <input
+              type="file"
+              onChange={handleFileChange}
+              accept="application/pdf"
+              className="block w-full mb-4 text-sm text-gray-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
+            />
+            <button
+              onClick={handleUpload}
+              className="w-full py-3 px-6 font-semibold rounded-full shadow-md bg-indigo-500 text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-opacity-50 transition-all duration-300 transform hover:translate-y-[-2px]"
+            >
+              Upload PDF
+            </button>
+          </div>
         </div>
-      </div>
+      )}
       {loading && (
-                <div className="loader">
-                <div className="spinner-border" role="status">
-                <span className="sr-only">Loading...</span>
-                </div>
-                </div>
-                 )}
+        <div className="loader">
+          <div className="spinner-border" role="status">
+            <span className="sr-only">Loading...</span>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="mb-8 p-6 text-red-100 bg-red-600 rounded-xl border border-red-400 shadow-lg animate-pulse">
@@ -249,8 +252,7 @@ const MindMapApp = () => {
         </div>
       )}
 
-      {/* Mind Map Card - Display only after upload */}
-      {isUploaded && (
+      {(isUploaded || mindMapData) && (
         <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 p-4 rounded-xl shadow-2xl mb-8 overflow-hidden">
           <h2 className="text-3xl font-bold mb-6 text-white">Mind Map Diagram</h2>
           <div
@@ -282,25 +284,6 @@ const MindMapApp = () => {
         </div>
       )}
 
-      {/* Zoom Controls - Outside of the mind map card */}
-      {isUploaded && (
-        <div className="flex justify-center gap-6 mt-6">
-          <button
-            onClick={handleZoomIn}
-            className="py-3 px-6 font-semibold rounded-full shadow-md bg-indigo-500 text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105"
-          >
-            Zoom In
-          </button>
-          <button
-            onClick={handleZoomOut}
-            className="py-3 px-6 font-semibold rounded-full shadow-md bg-purple-500 text-white hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105"
-          >
-            Zoom Out
-          </button>
-        </div>
-      )}
-
-      {/* Fullscreen Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
           <div className="relative w-full h-full max-w-screen-lg max-h-screen">

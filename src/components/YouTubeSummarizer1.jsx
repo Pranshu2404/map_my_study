@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { FaYoutube, FaLanguage, FaSpinner, FaExclamationTriangle } from "react-icons/fa";
 
 const YouTubeSummarizer = () => {
   const [youtubeLink, setYoutubeLink] = useState("");
@@ -20,7 +21,7 @@ const YouTubeSummarizer = () => {
 
     try {
       const response = await axios.post(
-        "https://web-4fju.onrender.com/yotube_summarizer",
+        "http://13.200.195.216:8000/yotube_summarizer",
         formData
       );
       setSummary(response.data);
@@ -36,7 +37,7 @@ const YouTubeSummarizer = () => {
       <div className="max-w-2xl mx-auto">
         <form onSubmit={handleSubmit} className="bg-gradient-to-r from-purple-500 to-indigo-500 p-6 rounded-xl shadow-2xl transition-all duration-300 hover:shadow-purple-500/30">
           <h1 className="text-4xl max-md:text-2xl font-bold text-center text-white mb-4">
-            YouTube Video Summarizer
+            iYouTube Summarizer
           </h1>
           <div className="mb-6 ">
             <label
@@ -45,15 +46,18 @@ const YouTubeSummarizer = () => {
             >
               YouTube Link:
             </label>
-            <input
-              type="text"
-              id="youtubeLink"
-              value={youtubeLink}
-              onChange={(e) => setYoutubeLink(e.target.value)}
-              required
-              className="mt-1 block w-full text-lg text-gray-900 bg-purple-100 border border-purple-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3 transition-all duration-200"
-              placeholder="Enter YouTube video URL"
-            />
+            <div className="relative">
+              <FaYoutube className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                id="youtubeLink"
+                value={youtubeLink}
+                onChange={(e) => setYoutubeLink(e.target.value)}
+                required
+                className="mt-1 block w-full text-lg text-gray-900 bg-purple-100 border border-purple-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3 pl-10 transition-all duration-200"
+                placeholder="Enter YouTube video URL"
+              />
+            </div>
           </div>
           <div className="mb-6">
             <label
@@ -62,15 +66,18 @@ const YouTubeSummarizer = () => {
             >
               Language:
             </label>
-            <input
-              type="text"
-              id="language"
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              required
-              className="mt-1 block w-full text-lg text-gray-900 bg-purple-100 border border-purple-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3 transition-all duration-200"
-              placeholder="Enter desired summary language"
-            />
+            <div className="relative">
+              <FaLanguage className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                id="language"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                required
+                className="mt-1 block w-full text-lg text-gray-900 bg-purple-100 border border-purple-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3 pl-10 transition-all duration-200"
+                placeholder="Enter desired summary language"
+              />
+            </div>
           </div>
           <button
             type="submit"
@@ -81,13 +88,34 @@ const YouTubeSummarizer = () => {
                 : "bg-indigo-600 hover:bg-indigo-700 text-white transform hover:scale-105"
             }`}
           >
-            {loading ? "Summarizing..." : "Get Summary"}
+            {loading ? (
+              <>
+                <FaSpinner className="inline-block mr-2 animate-spin" />
+                Summarizing...
+              </>
+            ) : (
+              "Get Summary"
+            )}
           </button>
         </form>
 
         {error && (
-          <div className="mt-6 p-4 border-2 border-indigo-500 text-purple-400 rounded-lg shadow-lg">
-            <p className="font-semibold">Coming Soon...</p>
+          <div className="mt-6 p-6 border-2 border-indigo-500 bg-indigo-900 text-purple-200 rounded-lg shadow-lg animate-pulse">
+            <div className="flex items-center justify-center mb-4">
+              <FaExclamationTriangle className="text-4xl text-yellow-400 mr-3" />
+              <h3 className="text-2xl font-bold">Coming Soon!</h3>
+            </div>
+            <p className="text-center text-lg">
+              We're working hard to bring you this exciting feature. Stay tuned for updates!
+            </p>
+            <div className="mt-6 flex justify-center">
+              <button 
+                onClick={() => setError("")} 
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105"
+              >
+                Got it!
+              </button>
+            </div>
           </div>
         )}
 
