@@ -27,7 +27,7 @@ const Sidebar = () => {
       } else {
         setUser(null);
         setActivities([]);
-        navigate("/maincontent");
+        navigate("/Maincontent");
       }
     });
 
@@ -95,7 +95,7 @@ const Sidebar = () => {
   const handleLogout = async () => {
     try {
       await auth.signOut();
-      navigate("/maincontent");
+      navigate("/");
     } catch (error) {
       console.error("Error during logout:", error);
     }
