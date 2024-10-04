@@ -74,7 +74,7 @@ const DocumentQA = () => {
     setError(null);
 
     try {
-      const result = await axios.post('http://13.200.195.216:8000/document_qa', formData, {
+      const result = await axios.post('https://13.200.195.216:8000/document_qa', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
