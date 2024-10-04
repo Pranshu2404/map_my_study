@@ -4,6 +4,8 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { collection, setDoc, doc, addDoc } from "firebase/firestore"; // Import Firestore functions
 import { useNavigate } from "react-router-dom";
 import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SignupPage = () => {
   const [username, setUsername] = useState("");
@@ -16,6 +18,11 @@ const SignupPage = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
+      // Check if password is at least 6 characters long
+      if (password.length < 6) {
+        throw new Error("Password should be at least 6 characters long");
+      }
+
       // Create the user with email and password
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user; // Get the user object
@@ -29,14 +36,52 @@ const SignupPage = () => {
       });
 
       console.log("User signed up:", username);
-      history("/login"); // Redirect to login after signup
+      toast.success("Signed up successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      setTimeout(() => {
+        history("/login"); // Redirect to login after signup
+      }, 3000);
     } catch (error) {
       console.error("Signup error:", error.message);
-      // You could add a state to show error messages to the user
+      toast.error(error.message || "Signup failed. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     } finally {
       setIsLoading(false);
     }
   };
+
+  const getPasswordStrength = (password) => {
+    const minLength = 6;
+    const strongLength = 10;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (password.length >= strongLength && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar) {
+      return { strength: "Strong", color: "text-green-500" };
+    } else if (password.length >= minLength) {
+      return { strength: "Medium", color: "text-yellow-500" };
+    } else {
+      return { strength: "Weak", color: "text-red-500" };
+    }
+  };
+
+  const passwordStrength = getPasswordStrength(password);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-black p-8">
@@ -76,9 +121,14 @@ const SignupPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full p-3 pl-10 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
-              placeholder="Create a password"
+              placeholder="Create a password (min 6 characters)"
             />
           </div>
+          {password && (
+            <div className={`text-sm ${passwordStrength.color}`}>
+              Password strength: {passwordStrength.strength}
+            </div>
+          )}
           <button
             type="submit"
             disabled={isLoading}
@@ -98,6 +148,7 @@ const SignupPage = () => {
           </a>
         </p>
       </div>
+      <ToastContainer />
     </div>
   );
 };

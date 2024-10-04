@@ -2,32 +2,35 @@ import React, { useState } from "react";
 import { auth, db } from "../firebaseConfig"; // Adjust the path as necessary
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEnvelope, FaLock } from "react-icons/fa";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const history = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
     try {
       await signInWithEmailAndPassword(auth, email, password);
       console.log("User logged in:", email);
       history("/"); // Redirect to dashboard after login
     } catch (error) {
       console.error("Login error:", error.message);
-      // You could add a state to show error messages to the user
+      if (error.code === "auth/wrong-password") {
+        setError("Incorrect password. Please try again.");
+      } else if (error.code === "auth/user-not-found") {
+        setError("No user found with this email. Please check your email or sign up.");
+      } else {
+        setError("Invalid email or password. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
@@ -50,21 +53,14 @@ const LoginPage = () => {
           <div className="relative">
             <FaLock className="absolute top-3 left-3 text-gray-400" />
             <input
-              type={showPassword ? "text" : "password"}
+              type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full p-3 pl-10 pr-10 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
+              className="w-full p-3 pl-10 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
               placeholder="Enter your password"
             />
-            <button
-              type="button"
-              onClick={togglePasswordVisibility}
-              className="absolute top-3 right-3 text-black focus:outline-none"
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </button>
           </div>
           <button
             type="submit"
@@ -77,6 +73,11 @@ const LoginPage = () => {
           >
             {isLoading ? "Logging in..." : "Login"}
           </button>
+          {error && (
+            <div className="mt-4 p-3 bg-red-500 text-white rounded-lg text-center">
+              {error}
+            </div>
+          )}
         </form>
         <p className="mt-6 text-center text-gray-400">
           Don't have an account?{" "}
