@@ -21,11 +21,11 @@ const App = () => {
             </div>
           } 
         />
-        <Route path="/maincontent" element={<MainContent />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/activities" element={<Activities />} />
-        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/MainContent" element={<MainContent />} />
+        <Route path="/Profile" element={<ProfilePage />} />
+        <Route path="/Login" element={<LoginPage />} />
+        <Route path="/Activities" element={<Activities />} />
+        <Route path="/Signup" element={<SignupPage />} />
         <Route path="/activities/:activityId" element={<ActivityDetails/>} />
       </Routes>
     </Router>

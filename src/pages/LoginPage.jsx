@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { auth, db } from "../firebaseConfig"; // Adjust the path as necessary
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const history = useNavigate();
 
@@ -23,6 +24,10 @@ const LoginPage = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -45,14 +50,21 @@ const LoginPage = () => {
           <div className="relative">
             <FaLock className="absolute top-3 left-3 text-gray-400" />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full p-3 pl-10 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
+              className="w-full p-3 pl-10 pr-10 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
               placeholder="Enter your password"
             />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute top-3 right-3 text-black focus:outline-none"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
           </div>
           <button
             type="submit"
