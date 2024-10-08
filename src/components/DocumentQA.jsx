@@ -74,7 +74,7 @@ const DocumentQA = () => {
     setError(null);
 
     try {
-      const result = await axios.post('https://13.200.195.216:8000/document_qa', formData, {
+      const result = await axios.post('/api/document_qa', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -92,7 +92,7 @@ const DocumentQA = () => {
         });
         setLoading(false); // Turn off loading after displaying the response
         setGeneratingMessage(false); // Hide generating message
-      }, 2000); // 5-second delay
+      }, 2000); // 2-second delay
     } catch (err) {
       setError('Your File is Too Large or Check your internet connection and Try Again...');
     } finally {
@@ -117,7 +117,7 @@ const DocumentQA = () => {
     setError(null);
 
     try {
-      const result = await axios.post('https://13.200.195.216:8000/document_qa', formData, {
+      const result = await axios.post('/api/document_qa', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -134,7 +134,7 @@ const DocumentQA = () => {
         });
         setLoading(false); // Turn off loading after displaying the response
         setGeneratingMessage(false); // Hide generating message
-      }, 3000); // 5-second delay
+      }, 3000); // 3-second delay
     } catch (err) {
       setError('Your File is Too Large or Check your internet connection and Try Again... ');
     } finally {

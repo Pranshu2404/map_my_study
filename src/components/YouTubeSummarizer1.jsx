@@ -21,7 +21,7 @@ const YouTubeSummarizer = () => {
 
     try {
       const response = await axios.post(
-        "http://13.200.195.216:8000/yotube_summarizer",
+        "https://13.200.195.216:8000/yotube_summarizer",
         formData
       );
       setSummary(response.data);
