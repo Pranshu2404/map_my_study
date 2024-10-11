@@ -57,7 +57,7 @@ const MindMapApp = ({ mindMapData }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post('https://13.200.195.216:8000/process_pdf', formData, {
+      const response = await axios.post('https://imapmystudy.com/process_pdf', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setMermaidCode(response.data.mermaid_code);

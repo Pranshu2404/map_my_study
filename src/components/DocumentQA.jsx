@@ -74,7 +74,7 @@ const DocumentQA = () => {
     setError(null);
 
     try {
-      const result = await axios.post('/api/document_qa', formData, {
+      const result = await axios.post('https://imapmystudy.com/document_qa/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -117,7 +117,7 @@ const DocumentQA = () => {
     setError(null);
 
     try {
-      const result = await axios.post('/api/document_qa', formData, {
+      const result = await axios.post('https://imapmystudy.com/document_qa/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

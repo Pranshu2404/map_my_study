@@ -96,7 +96,7 @@ const QuizGenerator = () => {
     formData.append('num', numQuestions);
 
     try {
-      const response = await fetch('https://13.200.195.216:8000//generate_quiz', {
+      const response = await fetch('https://imapmystudy.com/generate_quiz', {
         method: 'POST',
         body: formData,
       });

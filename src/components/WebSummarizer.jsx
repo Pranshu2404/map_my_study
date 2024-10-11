@@ -55,7 +55,7 @@ function WebSummarizer() {
       const formData = new FormData();
       formData.append('input', inputText);
 
-      const response = await fetch('https://13.200.195.216:8000/web_summarizer', {
+      const response = await fetch('https://imapmystudy.com/web_summarizer', {
         method: 'POST',
         body: formData,
       });

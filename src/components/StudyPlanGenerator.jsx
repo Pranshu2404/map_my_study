@@ -74,7 +74,7 @@ const StudyPlanGenerator = () => {
 
     try {
       const response = await axios.post(
-        "https://13.200.195.216:8000/generate_study_plan/",
+        "https://imapmystudy.com/generate_study_plan/",
         formData
       );
       setLoading(false);
