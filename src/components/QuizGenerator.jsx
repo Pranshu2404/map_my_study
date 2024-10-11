@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RadioGroup } from '@headlessui/react';
 import ReactHtmlParser from 'react-html-parser';
 
@@ -82,13 +82,13 @@ const QuizGenerator = () => {
   const [showAnswers, setShowAnswers] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [generatingMessage, setGeneratingMessage] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const generateQuiz = async () => {
     setIsLoading(true);
 
     const formData = new FormData();
@@ -107,14 +107,26 @@ const QuizGenerator = () => {
         setIsLoading(false);
         setGeneratingMessage(true);
         setTimeout(() => {
-          setQuiz(data.quiz);
-          setError(null);
-          setSelectedAnswers({});
-          setScore(null);
-          setCurrentQuestionIndex(0);
-          setQuizSubmitted(false);
-          setShowAnswers(false);
-          setGeneratingMessage(false);
+          if (data.quiz && data.quiz.length > 0) {
+            setQuiz(data.quiz);
+            setError(null);
+            setSelectedAnswers({});
+            setScore(null);
+            setCurrentQuestionIndex(0);
+            setQuizSubmitted(false);
+            setShowAnswers(false);
+            setGeneratingMessage(false);
+            setRetryCount(0);
+          } else {
+            setRetryCount(prevCount => prevCount + 1);
+            if (retryCount < 3) {
+              generateQuiz();
+            } else {
+              setError('Failed to generate quiz after multiple attempts. Please try again.');
+              setIsLoading(false);
+              setGeneratingMessage(false);
+            }
+          }
         }, 2000);
       } else {
         setError(data.error);
@@ -127,6 +139,18 @@ const QuizGenerator = () => {
       setIsLoading(false);
     }
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setRetryCount(0);
+    generateQuiz();
+  };
+
+  useEffect(() => {
+    if (quiz && quiz.length === 0 && retryCount < 3) {
+      generateQuiz();
+    }
+  }, [quiz, retryCount]);
 
   const handleAnswerSelect = (questionIndex, value) => {
     setSelectedAnswers((prev) => ({

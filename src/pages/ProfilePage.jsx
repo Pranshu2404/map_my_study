@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaUser, FaEnvelope, FaCalendar, FaCamera, FaBriefcase, FaBirthdayCake, FaEdit, FaSave, FaTimes } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaCalendar, FaCamera, FaBriefcase, FaBirthdayCake, FaEdit, FaSave, FaTimes, FaSignOutAlt } from 'react-icons/fa';
 import { auth, db } from '../firebaseConfig';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
@@ -17,6 +18,7 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -82,6 +84,17 @@ const ProfilePage = () => {
       } finally {
         setIsSaving(false);
       }
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      toast.success('Signed out successfully!');
+      navigate('/');
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast.error('Failed to sign out. Please try again.');
     }
   };
 
@@ -257,6 +270,14 @@ const ProfilePage = () => {
                 className="w-full py-2 px-4 mt-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg transition-all duration-300 flex items-center justify-center transform hover:brightness-110"
               >
                 <FaEdit className="mr-2" /> Edit Profile
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05}}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleSignOut}
+                className="w-full py-2 px-4 mt-4 bg-gradient-to-r from-red-500 to-orange-600 text-white rounded-lg transition-all duration-300 flex items-center justify-center transform hover:brightness-110"
+              >
+                <FaSignOutAlt className="mr-2" /> Sign Out
               </motion.button>
             </motion.div>
           )}
